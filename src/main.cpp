@@ -404,8 +404,8 @@ void setup() {
   //vco
   vcoA1.begin(vcoVol, 150, WAVEFORM_SAWTOOTH);
   vcoB1.begin(vcoVol, 150, WAVEFORM_SQUARE);
-  vcoC1.begin(vcoVol * 1.5, 150, WAVEFORM_ARBITRARY);
-  sub1.begin(vcoVol * 1.5, 150, WAVEFORM_TRIANGLE);
+  vcoC1.begin(vcoVol, 150, WAVEFORM_ARBITRARY);
+  sub1.begin(vcoVol , 150, WAVEFORM_TRIANGLE);
 
 
   //filter
@@ -415,20 +415,23 @@ void setup() {
 
   //lfoA
   lfoA1.begin(WAVEFORM_SINE);
-  lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);
+ 
 
 
 
   //lfoB
-  lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);
+ lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);
 
 
   //delay
   dlyFiltL.frequency(4000);
   dlyFiltR.frequency(3000);
 
-  dlyMixL.gain(0, 0);
-  dlyMixL.gain(0, 0);
+  dlyMixL.gain(0, 0.7);
+  dlyMixL.gain(1, 0.7);
+  
+  dlyMixR.gain(0, 0.7);
+  dlyMixR.gain(1, 0.7);
 
 
   dlyL.disable(1);
@@ -447,15 +450,11 @@ void setup() {
   dlyR.disable(6);
   dlyR.disable(7);
 
-
+ 
   //reverb
   reverb.roomsize(0.9);
   reverb.damping(0.8);
   
-
-  // Delay time
-  dlyL.delay(0, 500); // 250ms
-  dlyR.delay(0, 333); // 300ms
 
  //Disable LFO Connection
   patchCord2.disconnect();  //vcoA1
@@ -473,15 +472,6 @@ void setup() {
 
 
 void loop() {
-  patchCord2.connect();  //vcoA1
-  patchCord3.connect();  //vcoB1 ///
-  patchCord4.connect();  //vcoC1 /// PITCH LFO
-  patchCord5.connect();  //sub
-
-  patchCord6.disconnect();  //amplitude lfo
-
-  patchCord7.disconnect(); //filter lfo
-
   lfoA1.amplitude(1);
   lfoA1.frequency(1);
   lfoB1.begin(0.8, 2, WAVEFORM_SINE);  
@@ -521,14 +511,19 @@ void loop() {
 
   finalMix.gain(0,1);
 
-  reverb.roomsize(0.3);
-  reverb.damping(0.2);
+  reverb.roomsize(0.2);
+  reverb.damping(0.5);
+
+  env1.attack(10.5);
+  env1.delay(0);
+  env1.decay(500);
+  env1.sustain(0.1);
 
   dlyMixL.gain(0,1);
-  dlyMixL.gain(1,1);
+  dlyMixL.gain(1,0);
 
   dlyMixR.gain(0,1);
-  dlyMixR.gain(1,1);
+  dlyMixR.gain(1,0);
 
   fxL.gain(0,1);
   fxL.gain(1,0.8);
