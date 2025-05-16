@@ -12,6 +12,21 @@ Knob knobs[5] = {
   {A16, 0.0, 0.0}
 };
 
+Bounce button0 = Bounce(1, 15);
+Bounce button1 = Bounce(2, 15);
+Bounce button2 = Bounce(9, 15);
+
+enum ControlMode {
+  VOLUME_MODE,
+  FILTER_MODE,
+  WAVEFORM_MODE,
+  LFO_MODE,
+  EFFECTS_MODE
+};
+
+ControlMode currentMode = VOLUME_MODE;
+int button0_count = 0;
+
 void setupUI() {
   for (int i = 0; i < 5; i++) {
     pinMode(knobs[i].pin, INPUT);
@@ -28,56 +43,87 @@ void updateKnobs() {
     if (abs(newValue - knobs[i].lastKnobValue) > 0.05f) {
       knobs[i].KnobValue = newValue;
       knobs[i].lastKnobValue = newValue;
+
       Serial.print("Knob ");
       Serial.print(i);
       Serial.print(" KnobValue: ");
       Serial.println(knobs[i].KnobValue, 2);
       knobs[i].lastKnobValue = knobs[i].KnobValue;
+
+      switch(currentMode) {
+        case VOLUME_MODE: updateMainVolume(); 
+        updateVoiceMixGain();
+        break;
+        case FILTER_MODE: updateFilterParam(); break;
+        case WAVEFORM_MODE: WaveformUpdate(); break;
+        //case LFO_MODE: updateLFOParams(); break;
+        //case EFFECTS_MODE: updateEffects(); break;
+      }
     }
   }
 }
 
-Bounce button0 = Bounce(1, 15);
-Bounce button1 = Bounce(2, 15);
-Bounce button2 = Bounce(9, 15);
+void updateButtons() {
+  button0.update();
+  button1.update();
+  button2.update();
 
-int button0_count = 0;
+  if (button0.fallingEdge()) {
+    button0_count = (button0_count + 1) % 5;
+    currentMode = static_cast<ControlMode>(button0_count);
+    
+    Serial.print("Mode changed to: ");
+    switch(currentMode) {
+      case VOLUME_MODE: Serial.println("Volume"); 
+      break;
+      case FILTER_MODE: Serial.println("Filter"); 
+      break;
+      case WAVEFORM_MODE: Serial.println("Waveform"); 
+      break;
+      case LFO_MODE: Serial.println("LFO"); 
+      break;
+      case EFFECTS_MODE: Serial.println("Effects"); 
+      break;
+      default: Serial.println("Unkown");
+      currentMode = VOLUME_MODE;
+      break;
+    } 
+}
+
+// Button 1 toggles filter mode
+  if (button1.fallingEdge() && currentMode == FILTER_MODE) {
+    filterMode = (filterMode + 1) % 3;
+    updateFilterMode();
+  }
+
+ // Button 2 toggles filter edit mode
+  if (button2.fallingEdge() && currentMode == FILTER_MODE) {
+    filterEdit = !filterEdit;
+    Serial.print("Filter edit mode: ");
+    Serial.println(filterEdit ? "Envelope" : "Cutoff/Res");
+  }
+}  
+
 //volume
 void updateMainVolume(){
     mainVol = knobs[0].KnobValue;
     finalMix.gain(0, mainVol);
-    Serial.print("Main volume set to: ");
+    Serial.print("Main volume: ");
     Serial.println(mainVol*10, 2);
 }
 
 //Filter
 void updateFilterMode(){
-    if (filterMode < 0){
-        filterMode = 0;
-    }
-    else if (filterMode > 2){
-        filterMode = 2;
-    }
-    
-    if (filterMode == 0) {
-        filterMode1.gain(0,0);
-        filterMode1.gain(1,1); //Lowpass
-        filterMode1.gain(2,0);
-        Serial.print("Filter : Lowpass");
-    }
-    else if (filterMode == 1){
-        filterMode1.gain(0,1);
-        filterMode1.gain(1,0); //Bandpass
-        filterMode1.gain(2,0);
-        Serial.print("Filter : Bandpass");
-    }
-    else{
-        filterMode1.gain(0,0);
-        filterMode1.gain(1,0); //Highpass
-        filterMode1.gain(2,1);
-        Serial.print("Filter : Highpass");
-    }
+  filterMode = constrain(filterMode, 0, 2);
+  
+  filterMode1.gain(0, filterMode == 1 ? 1 : 0); // Bandpass
+  filterMode1.gain(1, filterMode == 0 ? 1 : 0); // Lowpass
+  filterMode1.gain(2, filterMode == 2 ? 1 : 0); // Highpass
+  
+  Serial.print("Filter mode: ");
+  Serial.println(filterMode);
 }
+
 void updateFilterParam(){
     if (filterEdit < 0){
         filterEdit = 0;
@@ -87,8 +133,8 @@ void updateFilterParam(){
     }
     
     if (filterEdit == 0){
-        cutoff = knobs[1].KnobValue;
-        reso = knobs[2].KnobValue;
+        cutoff = knobs[1].KnobValue*20000;
+        reso = 0.7+(knobs[2].KnobValue * 4.3);
         octave = knobs[3].KnobValue * 7;
         filter1.frequency(cutoff);
         filter1.resonance(reso);
@@ -126,28 +172,81 @@ void updateVoiceMixGain(){
 }
 
 void WaveformUpdate(){
-    //For VCOA
-    static int lastShapeA = -1;
-    shapeA_btn = constrain((int)(knobs[0].KnobValue * 4), 0, 3);
-
-    if(shapeA_btn != lastShapeA) {
-         switch(shapeA_btn) {
-            case 0: vcoA1.begin(WAVEFORM_SINE);
-            case 1: vcoA1.begin(WAVEFORM_SAWTOOTH);
-            case 2: vcoA1.begin(WAVEFORM_TRIANGLE);
-            case 3: vcoA1.begin(WAVEFORM_SQUARE);
-        }
-        lastShapeA = shapeA_btn;
-        Serial.print("VCO A Wave: ");
-        Serial.println(shapeA_btn);
+  //VCOA
+  static int lastShapeA = -1;
+  shapeA_btn = constrain((int)(knobs[1].KnobValue * 4), 0, 3);
+  
+  if (shapeA_btn != lastShapeA) {
+    switch(shapeA_btn) {
+      case 0: vcoA1.begin(WAVEFORM_SINE); break;
+      case 1: vcoA1.begin(WAVEFORM_SAWTOOTH); break;
+      case 2: vcoA1.begin(WAVEFORM_TRIANGLE); break;
+      case 3: vcoA1.begin(WAVEFORM_SQUARE); break;
     }
-
+    lastShapeA = shapeA_btn;
     volA_pot = knobs[1].KnobValue;
     vcoA1.amplitude(volA_pot);
+    Serial.print("VCO A Wave: ");
+    Serial.println(shapeA_btn);
+    
+  }
+  //VCOB
+  static int lastShapeB = -1;
+  shapeB_btn = constrain((int)(knobs[2].KnobValue * 4), 0, 3);  
+  if (shapeB_btn != lastShapeB) {
+    switch(shapeB_btn) {
+      case 0: vcoB1.begin(WAVEFORM_SINE); break;
+      case 1: vcoB1.begin(WAVEFORM_SAWTOOTH); break;
+      case 2: vcoB1.begin(WAVEFORM_TRIANGLE); break;
+      case 3: vcoB1.begin(WAVEFORM_SQUARE); break;
+    }
+    lastShapeB = shapeB_btn;
+    volB_pot = knobs[2].KnobValue;
+    vcoB1.amplitude(volB_pot);
+    Serial.print("VCO B Wave: ");
+    Serial.println(shapeB_btn);
+    
+  }
+  //VCOC  
+  static int lastShapeC = -1;
+  shapeC_btn = constrain((int)(knobs[3].KnobValue * 4), 0, 3);  
+  if (shapeC_btn != lastShapeC) {
+    switch(shapeC_btn) {
+      case 0: vcoC1.begin(WAVEFORM_SINE); break;
+      case 1: vcoC1.begin(WAVEFORM_SAWTOOTH); break;
+      case 2: vcoC1.begin(WAVEFORM_TRIANGLE); break;
+      case 3: vcoC1.begin(WAVEFORM_SQUARE); break;
+    }
+    lastShapeC = shapeC_btn;
+    volC_pot = knobs[1].KnobValue;
+    vcoC1.amplitude(volA_pot);
+    Serial.print("VCO C Wave: ");
+    Serial.println(shapeC_btn);
+    
+  }
+  //SUB
+  static int lastShapeSub = -1;
+  shapeSub_btn = constrain((int)(knobs[4].KnobValue * 4), 0, 3);    
+  if (shapeSub_btn != lastShapeSub) {
+    switch(shapeSub_btn) {
+      case 0: sub1.begin(WAVEFORM_SINE); break;
+      case 1: sub1.begin(WAVEFORM_SAWTOOTH); break;
+      case 2: sub1.begin(WAVEFORM_TRIANGLE); break;
+      case 3: sub1.begin(WAVEFORM_SQUARE); break;
+    }
+    lastShapeSub = shapeSub_btn;
+    volSub_pot = knobs[4].KnobValue;
+    sub1.amplitude(volSub_pot);
+    Serial.print("Sub Wave: ");
+    Serial.println(shapeSub_btn);
+    
+  }
+}
+
+
     //For VCOB
     //For VCOC
     //For Sub
-}
 //lfo
 
 //effect

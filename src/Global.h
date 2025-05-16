@@ -18,7 +18,7 @@ extern float vcoVol;
 extern float mainVol;
 
 // VCO shape
-extern int shapeA, shapeB, shapeC;
+extern int shapeA, shapeB, shapeC, shapeSub;
 extern float volA_pot;
 extern int freqA;
 
@@ -59,6 +59,8 @@ extern unsigned long prevTimer;
 // UI control variables
 extern int shapeA_btn, oldShapeA_btn;
 extern int shapeB_btn, oldShapeB_btn;
+extern int shapeC_btn, oldShapeC_btn;
+extern int shapeSub_btn, oldShapeSub_btn;
 extern int crossModulation_pot, oldCrossModulation_pot;
 extern float volA_pot, oldVolA_pot;
 extern int volB_pot, oldVolB_pot;

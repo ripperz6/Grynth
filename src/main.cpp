@@ -77,41 +77,27 @@ void setup() {
 void loop() {
   MIDI.read();
   updateKnobs();
+  updateButtons();
   updateMainVolume();
-
+  WaveformUpdate();
+  updateFilterMode();
+  updateFilterParam();
+  updateVoiceMixGain();
+  
   lfoA1.begin(1, 1, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
   lfoB1.begin(0.8, 2, WAVEFORM_SINE);   //LFOB Amplitude, Freq, Shape
 
-  vcoA1.begin(WAVEFORM_SINE);           //WaveA Shape
-  vcoB1.begin(WAVEFORM_SINE);           //WaveB Shape
-  vcoC1.begin(WAVEFORM_SINE);           //WaveC Shape
-  sub1.begin(WAVEFORM_SINE);            //WaveSub Shape
 
   modMix1.gain(0, 1);                   //vcoB mod Mix
   modMix1.gain(1, 1);                   //LFO mod Mix Wave B
 
   dc1.amplitude(0.1);                   //DC control signal to filter
 
-  voiceMix1.gain(0, 0);                 //Wave A 
-  voiceMix1.gain(1, 1);                 //Wave B
-  voiceMix1.gain(2, 0);                 //Wave C
-  voiceMix1.gain(3, 0);                 //Wave modulate lfo
 
-  filterEnv1.attack(10.5);              //Filter atk : 10.5 - 11880
-  filterEnv1.decay(35);                 //Filter Dcy : 35 - 11880
-  filterEnv1.delay(0);                  //Filter Dly : 0
-  filterEnv1.sustain(0.6);              //Filter Sus : 0 - 1
-  filterEnv1.release(300);              //Filter rel : 300 - 11880
 
   filterMix1.gain(0, 0);                //LFO merge with Filter Envelope
   filterMix1.gain(1, 0);              //Filter Envelope Control
 
-  filter1.frequency(1000);              //Filter Cutoff Frequency 
-  filter1.resonance(1);                 //Filter resonance 0.7-5
-
-  filterMode1.gain(0, 0);               //Low pass filter signal path
-  filterMode1.gain(1, 1);               //Band pass filter signal path
-  filterMode1.gain(2, 0);               //High pass filter 0 = off 1 = on signal path
 
 
   env1.attack(10.5);

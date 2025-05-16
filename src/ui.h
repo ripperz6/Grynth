@@ -21,4 +21,12 @@ void updateKnobs();
 void updateMainVolume();
 
 void updateVoiceMixGain();
+
+void updateFilterMode();
+
+void updateFilterParam();
+
+void WaveformUpdate();
+
+void updateButtons();
 #endif

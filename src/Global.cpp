@@ -72,9 +72,13 @@ int oldShapeB_btn;
 int volB_pot;
 int oldVolB_pot;
 
+int shapeC_btn;
+int oldShapeC_btn;
 int volC_pot;
 int oldVolC_pot;
 
+int shapeSub_btn;
+int oldShapeSub_btn;
 int volSub_pot;
 int oldVolSub_pot;
 
