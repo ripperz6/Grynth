@@ -4,51 +4,70 @@
 #include "global.h"
 #include "midih.h"
 #include <MIDI.h>
-
+#include "ui.h"
 
 void setup() {
   Serial.begin(9600);
   AudioMemory(400);
   setupMIDI();
-  sgtl5000_1.enable();
-  sgtl5000_1.volume(0.8);
+  sgtl5000_1.enable();                                  //Audio Shield Ena
+  sgtl5000_1.volume(0.8);                               //Audio Shield Vol
 
-  vcoA1.begin(vcoVol, 150, WAVEFORM_SAWTOOTH);
-  vcoB1.begin(vcoVol, 150, WAVEFORM_SQUARE);
-  vcoC1.begin(vcoVol * 1.5, 150, WAVEFORM_ARBITRARY);
-  sub1.begin(vcoVol * 1.5, 150, WAVEFORM_TRIANGLE);
+  vcoA1.begin(vcoVol, 150, WAVEFORM_SAWTOOTH);          //Wave A def
+  vcoB1.begin(vcoVol, 150, WAVEFORM_SQUARE);            //Wave B def
+  vcoC1.begin(vcoVol * 1.5, 150, WAVEFORM_ARBITRARY);   //Wave C def
+  sub1.begin(vcoVol * 1.5, 150, WAVEFORM_TRIANGLE);     //Wave Sub def
 
-  filter1.octaveControl(7);
-  filterEnv1.sustain(0);
+  filter1.octaveControl(7);                             //Filter Control 7 Octave
+  filterEnv1.sustain(0);         
+  filterMode1.gain(0, 0);               //Low pass filter signal path
+  filterMode1.gain(1, 1);               //Band pass filter signal path
+  filterMode1.gain(2, 0);               //High pass filter 0 = off 1 = on signal path
 
-  lfoA1.begin(WAVEFORM_SINE);
-  lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);
+  granular1.setSpeed(0);
+  granular1.beginFreeze(0);
+  granular1.beginPitchShift(5);
+
+  GranularMode1.gain(0,1);                              //Granular Off
+  GranularMode1.gain(0,0);                              //Granular On
+
+  lfoA1.begin(0.5, 2, WAVEFORM_SINE);                   //LFO A def shape
+  lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);               //LFO B def gain freq shape
+
+  env1.attack(10.5);
+  env1.delay(0);
+  env1.decay(35);
+  env1.sustain(0.3);
+  env1.release(300);
+
+  mix1.gain(0,1);
+  finalMix.gain(0,1);
 
   dlyFiltL.frequency(4000);
   dlyFiltR.frequency(3000);
 
-  dlyMixL.gain(0, 0);
-  dlyMixL.gain(1, 0);
-  dlyMixR.gain(0, 0);
-  dlyMixR.gain(1, 0);
+  dlyMixL.gain(0, 1);                                   //Dry Voice Mix
+  dlyMixL.gain(1, 0);                                   //Delay Feedback Mix
+  dlyMixR.gain(0, 1);                                   
+  dlyMixR.gain(1, 0);                                   
 
-  for (int i = 1; i < 8; ++i) {
+  for (int i = 1; i < 8; ++i) {                         //Disable Delay
     dlyL.disable(i);
     dlyR.disable(i);
   }
 
-  reverb.roomsize(0.9);
-  reverb.damping(0.8);
+  reverb.roomsize(0.9);                                 //Reverb Size Def
+  reverb.damping(0.8);                                  //Reveb Damp Def
 
-  dlyL.delay(0, 500);
-  dlyR.delay(0, 333);
+  dlyL.delay(0, 500);                                   //Delay L Channel out 0, freq
+  dlyR.delay(0, 333);                                   //Delay R Channel out 0, freq
 
-  patchCord2.disconnect();
-  patchCord3.disconnect();
-  patchCord4.disconnect();
-  patchCord5.disconnect();
-  patchCord6.disconnect();
-  patchCord7.disconnect();
+  patchCord2.disconnect();                              //LFOA Pitch connect Wave A
+  patchCord3.disconnect();                              //LFOA Pitch connect Wave B                           
+  patchCord4.disconnect();                              //LFOA Pitch connect Wave C
+  patchCord5.disconnect();                              //LFOA Pitch connect Wave Sub
+  patchCord6.disconnect();                              //LFOA Amplitude
+  patchCord7.disconnect();                              //LFOA Filter
 
   for (int i = 0; i < 6; ++i) {
     pinMode(33 + i, INPUT_PULLUP);
@@ -57,74 +76,78 @@ void setup() {
 
 void loop() {
   MIDI.read();
-  patchCord2.connect();
-  patchCord3.connect();
-  patchCord4.connect();
-  patchCord5.connect();
+  updateKnobs();
 
-  patchCord6.disconnect();
-  patchCord7.disconnect();
+  lfoA1.begin(1, 1, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
+  lfoB1.begin(0.8, 2, WAVEFORM_SINE);   //LFOB Amplitude, Freq, Shape
 
-  lfoA1.amplitude(1);
-  lfoA1.frequency(1);
-  lfoB1.begin(0.8, 2, WAVEFORM_SINE);
+  vcoA1.begin(WAVEFORM_SINE);           //WaveA Shape
+  vcoB1.begin(WAVEFORM_SINE);           //WaveB Shape
+  vcoC1.begin(WAVEFORM_SINE);           //WaveC Shape
+  sub1.begin(WAVEFORM_SINE);            //WaveSub Shape
 
-  vcoA1.begin(WAVEFORM_SINE);
-  vcoB1.begin(WAVEFORM_SAWTOOTH);
-  vcoC1.begin(WAVEFORM_SINE);
-  sub1.begin(WAVEFORM_SINE);
+  modMix1.gain(0, 1);                   //vcoB mod Mix
+  modMix1.gain(1, 1);                   //LFO mod Mix Wave B
 
-  modMix1.gain(0, 1);
-  modMix1.gain(1, 0);
+  dc1.amplitude(0.1);                   //DC control signal to filter
 
-  dc1.amplitude(0.1);
+  voiceMix1.gain(0, 0);                 //Wave A 
+  voiceMix1.gain(1, 1);                 //Wave B
+  voiceMix1.gain(2, 0);                 //Wave C
+  voiceMix1.gain(3, 0);                 //Wave modulate lfo
 
-  voiceMix1.gain(0, 1);
-  voiceMix1.gain(1, 0);
-  voiceMix1.gain(2, 0);
-  voiceMix1.gain(3, 0);
+  filterEnv1.attack(10.5);              //Filter atk : 10.5 - 11880
+  filterEnv1.decay(35);                 //Filter Dcy : 35 - 11880
+  filterEnv1.delay(0);                  //Filter Dly : 0
+  filterEnv1.sustain(0.6);              //Filter Sus : 0 - 1
+  filterEnv1.release(300);              //Filter rel : 300 - 11880
 
-  filterEnv1.attack(10.5);
-  filterEnv1.decay(35);
-  filterEnv1.delay(0);
-  filterEnv1.sustain(0.6);
-  filterEnv1.release(300);
+  filterMix1.gain(0, 0);                //LFO merge with Filter Envelope
+  filterMix1.gain(1, 0);              //Filter Envelope Control
 
-  filterMix1.gain(0, 0);
-  filterMix1.gain(1, 0.5);
+  filter1.frequency(1000);              //Filter Cutoff Frequency 
+  filter1.resonance(1);                 //Filter resonance 0.7-5
 
-  filter1.frequency(2000);
-  filter1.resonance(1);
+  filterMode1.gain(0, 0);               //Low pass filter signal path
+  filterMode1.gain(1, 1);               //Band pass filter signal path
+  filterMode1.gain(2, 0);               //High pass filter 0 = off 1 = on signal path
 
-  filterMode1.gain(0, 0);
-  filterMode1.gain(1, 1);
-  filterMode1.gain(2, 0);
+  granular1.begin(5,10);    //start gran
+  GranularMode1.gain(0,0);
+  GranularMode1.gain(1,1); 
 
-  mix1.gain(0, 1);
-  finalMix.gain(0, 1);
+  env1.attack(10.5);
+  env1.delay(0);
+  env1.decay(35);
+  env1.sustain(0.2);
+  env1.release(200);
 
-  reverb.roomsize(0.3);
-  reverb.damping(0.2);
 
-  dlyMixL.gain(0, 1);
-  dlyMixL.gain(1, 1);
+  mix1.gain(0, 1);                      //Allow note 0 to pass to Final Mix
+  finalMix.gain(0, 1);                  //Note0 Gain
 
-  dlyMixR.gain(0, 1);
-  dlyMixR.gain(1, 1);
+  reverb.roomsize(0.3);                 //Reverb Size
+  reverb.damping(0);                  //Reverb Damp
 
-  fxL.gain(0, 1);
-  fxL.gain(1, 0.8);
-  fxL.gain(2, 0.7);
+  dlyMixL.gain(0, 1);                   //Dry Sound of Delay L
+  dlyMixL.gain(1, 1);                   //Delay Feedback
 
-  fxR.gain(0, 1);
-  fxR.gain(1, 0.8);
-  fxR.gain(2, 0.7);
+  dlyMixR.gain(0, 1);                   //Dry Sound of Delay R
+  dlyMixR.gain(1, 1);                   //Delay Feedback
 
-for (int i = 0; i < 6; ++i) {
+  fxL.gain(0, 1);                       //Dry Sound L
+  fxL.gain(1, 0);                       //Reverb Mix L
+  fxL.gain(2, 0);                       //Reveb Mix L
+
+  fxR.gain(0, 1);                       //Dry Sound R
+  fxR.gain(1, 0);                       //Reverb Mix R
+  fxR.gain(2, 0);                       //Reverb Mix R
+
+for (int i = 0; i < 6; ++i) {           //Note Play
   noteButtons[i].button.update();
   if (noteButtons[i].button.fallingEdge()) {
     float freq = noteButtons[i].frequency;
-    vcoA1.frequency(freq);
+    vcoA1.frequency(freq);                        
     vcoB1.frequency(freq);
     vcoC1.frequency(freq);
     sub1.frequency(freq);

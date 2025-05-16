@@ -44,6 +44,9 @@ extern AudioMixer4 fxR;
 extern AudioOutputI2S i2s1;
 extern AudioControlSGTL5000 sgtl5000_1;
 
+extern AudioEffectGranular granular1;
+extern AudioMixer4 GranularMode1;
+
 extern AudioConnection patchCord1;
 extern AudioConnection patchCord2;
 extern AudioConnection patchCord3;
@@ -86,4 +89,8 @@ extern AudioConnection patchCord39;
 extern AudioConnection patchCord40;
 extern AudioConnection patchCord41;
 
+extern AudioConnection patchCord42; //filtermode1 to gran
+extern AudioConnection patchCord43; //gran to granmode
+extern AudioConnection patchCord44; //granmode to env1
+extern AudioConnection patchCord45; //filtermoe 1 granmode
 #endif
