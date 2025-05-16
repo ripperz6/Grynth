@@ -70,7 +70,7 @@ void setup() {
   patchCord7.disconnect();                              //LFOA Filter
 
   for (int i = 0; i < 6; ++i) {
-    pinMode(33 + i, INPUT_PULLUP);
+    pinMode(27 + i, INPUT_PULLUP);
   }
 }
 
