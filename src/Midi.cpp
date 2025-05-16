@@ -1,5 +1,5 @@
 #include "midih.h"
-#include "synth.h"    // renamed from core.h
+#include "audcon.h"    // renamed from core.h
 #include "global.h"
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);

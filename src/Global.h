@@ -3,14 +3,15 @@
 
 #include <Arduino.h>
 #include <Bounce.h>
+#include <Audio.h>
 
 // Envelope flags
 extern bool env1on;
 
 // VCO volumes
-extern float vcoAVol;
-extern float vcoBVol;
-extern float vcoCVol;
+extern float vcoAgain;
+extern float vcoBgain;
+extern float vcoCgain;
 extern float SubVol;
 extern float crossMod;
 extern float vcoVol;
@@ -18,13 +19,16 @@ extern float mainVol;
 
 // VCO shape
 extern int shapeA, shapeB, shapeC;
+extern float volA_pot;
+extern int freqA;
 
 // Filter
-extern int cutoff;
+extern int cutoff, filtSus;
 extern float reso;
-extern int filtAtt, filtDec;
+extern float octave;
+extern float filtAtt, filtDec, filtRel;
 extern float filtAmount;
-extern int filterMode;
+extern int filterMode, filterEdit;
 
 // Envelope
 extern int envAtt, envDec, envRel;
@@ -56,7 +60,7 @@ extern unsigned long prevTimer;
 extern int shapeA_btn, oldShapeA_btn;
 extern int shapeB_btn, oldShapeB_btn;
 extern int crossModulation_pot, oldCrossModulation_pot;
-extern int volA_pot, oldVolA_pot;
+extern float volA_pot, oldVolA_pot;
 extern int volB_pot, oldVolB_pot;
 extern int volC_pot, oldVolC_pot;
 extern int volSub_pot, oldVolSub_pot;
@@ -85,4 +89,6 @@ struct NoteButton {
 };
 
 extern NoteButton noteButtons[6];
+
+
 #endif

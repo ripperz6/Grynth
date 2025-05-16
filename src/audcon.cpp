@@ -1,4 +1,4 @@
-#include "synth.h"
+#include "audcon.h"
 
 // Define all Audio objects
 AudioSynthWaveform                  lfoA1;

@@ -3,13 +3,16 @@
 
 bool env1on = false;
 
-float vcoAVol = 0.4;
-float vcoBVol = 0.4;
-float vcoCVol = 0.4;
+float vcoAgain = 0.4;
+float vcoBgain = 0.4;
+float vcoCgain = 0.4;
 float SubVol = 0.4;
 float crossMod;
 float vcoVol = 0.07;
+
 float mainVol;
+float mainVolPot;
+float oldmainVolPot;
 
 int shapeA;
 int shapeB;
@@ -17,8 +20,12 @@ int shapeC = 1;
 
 int cutoff = 2000;
 float reso = 1;
-int filtAtt;
-int filtDec;
+float octave = 1;
+int filterEdit;
+float filtAtt;
+float filtDec;
+float filtRel;
+int filtSus;
 float filtAmount;
 int filterMode;
 
@@ -56,24 +63,33 @@ unsigned long prevTimer;
 
 int shapeA_btn;
 int oldShapeA_btn;
+float volA_pot;
+float oldVolA_pot;
+int freqA; 
+
 int shapeB_btn;
 int oldShapeB_btn;
-int crossModulation_pot;
-int oldCrossModulation_pot;
-int volA_pot;
-int oldVolA_pot;
 int volB_pot;
 int oldVolB_pot;
+
 int volC_pot;
 int oldVolC_pot;
+
 int volSub_pot;
 int oldVolSub_pot;
+
+int crossModulation_pot;
+int oldCrossModulation_pot;
+
+
 int attack_pot;
 int oldAtttack_pot;
 int decay_pot;
 int oldDecay_pot;
 float sustain_pot;
 float oldSustain_pot;
+
+
 int lfoAamplitude_pot;
 int oldLfoAamplitude_pot;
 int lfoFrequency_pot;
@@ -109,3 +125,4 @@ NoteButton noteButtons[] = {
   {31, "G", 392.00, Bounce(31, 15)},
   {32, "A", 440.00, Bounce(32, 15)}
 };
+

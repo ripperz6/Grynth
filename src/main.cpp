@@ -1,6 +1,6 @@
 // main.cpp
 #include <Arduino.h>
-#include "synth.h"
+#include "audcon.h"
 #include "global.h"
 #include "midih.h"
 #include <MIDI.h>
@@ -77,6 +77,7 @@ void setup() {
 void loop() {
   MIDI.read();
   updateKnobs();
+  updateMainVolume();
 
   lfoA1.begin(1, 1, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
   lfoB1.begin(0.8, 2, WAVEFORM_SINE);   //LFOB Amplitude, Freq, Shape
@@ -112,9 +113,6 @@ void loop() {
   filterMode1.gain(1, 1);               //Band pass filter signal path
   filterMode1.gain(2, 0);               //High pass filter 0 = off 1 = on signal path
 
-  granular1.begin(5,10);    //start gran
-  GranularMode1.gain(0,0);
-  GranularMode1.gain(1,1); 
 
   env1.attack(10.5);
   env1.delay(0);
@@ -124,7 +122,6 @@ void loop() {
 
 
   mix1.gain(0, 1);                      //Allow note 0 to pass to Final Mix
-  finalMix.gain(0, 1);                  //Note0 Gain
 
   reverb.roomsize(0.3);                 //Reverb Size
   reverb.damping(0);                  //Reverb Damp
