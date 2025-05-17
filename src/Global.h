@@ -31,12 +31,11 @@ extern float filtAmount;
 extern int filterMode, filterEdit;
 
 // Envelope
-extern int envAtt, envDec, envRel;
-extern float envSus;
+extern float envSus,envAtt, envDec, envRel;
 
 // LFO A
 extern float lfoAamplitude, lfoAfrequency;
-extern int lfoAdelay, lfoAattack, lfoAdecay, lfoArelease;
+extern int lfoAdelay, lfoAattack, lfoAdecay, lfoArelease, lfoAEdit;
 extern float lfoAsustain;
 extern int lfoAshape, lfoAdestination;
 extern float ampMod;

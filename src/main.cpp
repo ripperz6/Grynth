@@ -12,15 +12,13 @@ void setup() {
   setupOLED();
 
 
-  AudioMemory(400);
+  AudioMemory(1500);
   setupMIDI();
   sgtl5000_1.enable();                                  //Audio Shield Ena
   sgtl5000_1.volume(0.8);                               //Audio Shield Vol
-
   vcoA1.begin(vcoVol, 150, WAVEFORM_SAWTOOTH);          //Wave A def
   vcoB1.begin(vcoVol, 150, WAVEFORM_SQUARE);            //Wave B def
   vcoC1.begin(vcoVol * 1.5, 150, WAVEFORM_ARBITRARY);   //Wave C def
-  sub1.begin(vcoVol * 1.5, 150, WAVEFORM_TRIANGLE);     //Wave Sub def
 
   filter1.octaveControl(7);                             //Filter Control 7 Octave
   filterEnv1.sustain(0);         
@@ -39,10 +37,9 @@ void setup() {
   lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);               //LFO B def gain freq shape
 
   env1.attack(10.5);
-  env1.delay(0);
   env1.decay(35);
   env1.sustain(0.3);
-  env1.release(300);
+  env1.release(50);
 
   mix1.gain(0,1);
   finalMix.gain(0,1);
@@ -69,13 +66,16 @@ void setup() {
   patchCord2.disconnect();                              //LFOA Pitch connect Wave A
   patchCord3.disconnect();                              //LFOA Pitch connect Wave B                           
   patchCord4.disconnect();                              //LFOA Pitch connect Wave C
-  patchCord5.disconnect();                              //LFOA Pitch connect Wave Sub
-  patchCord6.disconnect();                              //LFOA Amplitude
-  patchCord7.disconnect();                              //LFOA Filter
+  patchCord5.disconnect();                              //Amplitude LFo
+  patchCord6.disconnect();                              //LFOA Filter
+ 
 
   for (int i = 0; i < 6; ++i) {
     pinMode(27 + i, INPUT_PULLUP);
   }
+  pinMode(1,INPUT_PULLUP);
+  pinMode(2,INPUT_PULLUP);
+  pinMode(9,INPUT_PULLUP);
 }
 
 void loop() {
@@ -85,14 +85,18 @@ void loop() {
   updateMainVolume();
   WaveformUpdate();
   updateFilterMode();
-  updateFilterParam();
-  updateVoiceMixGain();
+  updateLFO();
+  //EnvelopeUpdate();
   drawVolumeBar(mainVol);  // Assuming mainVol is 0.0–1.0
 
-  
-  lfoA1.begin(1, 1, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
-  lfoB1.begin(0.8, 2, WAVEFORM_SINE);   //LFOB Amplitude, Freq, Shape
 
+  
+  lfoA1.begin(0.01, 2, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
+  lfoB1.begin(0.1, 2, WAVEFORM_SINE);   //LFOB Amplitude, Freq, Shape
+  patchCord2.connect();                              //LFOA Pitch connect Wave A
+  patchCord3.connect();                              //LFOA Pitch connect Wave B                           
+  patchCord4.connect();                              //LFOA Pitch connect Wave C
+  
 
   modMix1.gain(0, 1);                   //vcoB mod Mix
   modMix1.gain(1, 1);                   //LFO mod Mix Wave B
@@ -103,15 +107,6 @@ void loop() {
 
   filterMix1.gain(0, 0);                //LFO merge with Filter Envelope
   filterMix1.gain(1, 0);              //Filter Envelope Control
-
-
-
-  env1.attack(10.5);
-  env1.delay(0);
-  env1.decay(35);
-  env1.sustain(0.2);
-  env1.release(200);
-
 
   mix1.gain(0, 1);                      //Allow note 0 to pass to Final Mix
 
@@ -139,7 +134,6 @@ for (int i = 0; i < 6; ++i) {           //Note Play
     vcoA1.frequency(freq);                        
     vcoB1.frequency(freq);
     vcoC1.frequency(freq);
-    sub1.frequency(freq);
     lfoAenv1.noteOn();
     env1.noteOn();
 

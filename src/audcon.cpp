@@ -30,9 +30,14 @@ AudioMixer4                         fxL;
 AudioMixer4                         fxR;
 AudioOutputI2S                      i2s1;
 AudioControlSGTL5000                sgtl5000_1;
+
 AudioEffectGranular                 granular1;
 AudioMixer4                         GranularMode1;
 
+AudioPlaySdRaw                      playSdRaw;
+AudioInputI2S                       i2s2;
+AudioRecordQueue                    queue1;
+AudioAnalyzePeak                    peak1;
 
 // Define all patchCords
 AudioConnection patchCord1(lfoA1, lfoAenv1);
@@ -50,7 +55,7 @@ AudioConnection patchCord12(vcoB1, 0, voiceMix1, 1);
 AudioConnection patchCord13(vcoB1, 0, modMix1, 0);
 AudioConnection patchCord14(vcoA1, 0, voiceMix1, 0);
 AudioConnection patchCord15(dc1, filterEnv1);
-AudioConnection patchCord16(sub1, 0, voiceMix1, 3);
+
 AudioConnection patchCord17(filterEnv1, 0, filterMix1, 1);
 AudioConnection patchCord18(voiceMix1, 0, filter1, 0);
 AudioConnection patchCord19(filterMix1, 0, filter1, 1);
@@ -81,3 +86,4 @@ AudioConnection patchCord42(filterMode1, granular1);
 AudioConnection patchCord43(filterMode1, 0, GranularMode1, 0);
 AudioConnection patchCord44(granular1, 0, GranularMode1, 1);
 AudioConnection patchCord45(GranularMode1, env1);
+

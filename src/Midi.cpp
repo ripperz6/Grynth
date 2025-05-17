@@ -9,7 +9,6 @@ void handleNoteOn(byte channel, byte pitch, byte velocity) {
   vcoA1.frequency(freq);
   vcoB1.frequency(freq);
   vcoC1.frequency(freq);
-  sub1.frequency(freq);
   lfoAenv1.noteOn();
   env1.noteOn();
 

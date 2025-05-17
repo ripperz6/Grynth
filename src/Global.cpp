@@ -29,9 +29,9 @@ int filtSus;
 float filtAmount;
 int filterMode;
 
-int envAtt;
-int envDec;
-int envRel;
+float envAtt;
+float envDec;
+float envRel;
 float envSus;
 
 float lfoAamplitude;
@@ -40,6 +40,7 @@ int lfoAdelay;
 int lfoAattack;
 int lfoAdecay;
 int lfoArelease;
+int lfoAEdit;
 float lfoAsustain;
 int lfoAshape;
 int lfoAdestination;
