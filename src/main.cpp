@@ -5,9 +5,13 @@
 #include "midih.h"
 #include <MIDI.h>
 #include "ui.h"
+#include "display.h"
 
 void setup() {
   Serial.begin(9600);
+  setupOLED();
+
+
   AudioMemory(400);
   setupMIDI();
   sgtl5000_1.enable();                                  //Audio Shield Ena
@@ -83,6 +87,8 @@ void loop() {
   updateFilterMode();
   updateFilterParam();
   updateVoiceMixGain();
+  drawVolumeBar(mainVol);  // Assuming mainVol is 0.0–1.0
+
   
   lfoA1.begin(1, 1, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
   lfoB1.begin(0.8, 2, WAVEFORM_SINE);   //LFOB Amplitude, Freq, Shape

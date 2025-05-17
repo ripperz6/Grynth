@@ -40,7 +40,7 @@ void updateKnobs() {
     float raw = analogRead(knobs[i].pin);
     float newValue = raw / 1023.0f;
 
-    if (abs(newValue - knobs[i].lastKnobValue) > 0.05f) {
+    if (fabs(newValue - knobs[i].lastKnobValue) > 0.1f) {
       knobs[i].KnobValue = newValue;
       knobs[i].lastKnobValue = newValue;
 
@@ -74,17 +74,17 @@ void updateButtons() {
     
     Serial.print("Mode changed to: ");
     switch(currentMode) {
-      case VOLUME_MODE: Serial.println("Volume"); 
+      case VOLUME_MODE: //Serial.println("Volume"); 
       break;
-      case FILTER_MODE: Serial.println("Filter"); 
+      case FILTER_MODE: //Serial.println("Filter"); 
       break;
-      case WAVEFORM_MODE: Serial.println("Waveform"); 
+      case WAVEFORM_MODE: //Serial.println("Waveform"); 
       break;
-      case LFO_MODE: Serial.println("LFO"); 
+      case LFO_MODE: //Serial.println("LFO"); 
       break;
-      case EFFECTS_MODE: Serial.println("Effects"); 
+      case EFFECTS_MODE: //Serial.println("Effects"); 
       break;
-      default: Serial.println("Unkown");
+      default: //Serial.println("Unkown");
       currentMode = VOLUME_MODE;
       break;
     } 
@@ -99,8 +99,8 @@ void updateButtons() {
  // Button 2 toggles filter edit mode
   if (button2.fallingEdge() && currentMode == FILTER_MODE) {
     filterEdit = !filterEdit;
-    Serial.print("Filter edit mode: ");
-    Serial.println(filterEdit ? "Envelope" : "Cutoff/Res");
+    //Serial.print("Filter edit mode: ");
+    //Serial.println(filterEdit ? "Envelope" : "Cutoff/Res");
   }
 }  
 
@@ -108,8 +108,8 @@ void updateButtons() {
 void updateMainVolume(){
     mainVol = knobs[0].KnobValue;
     finalMix.gain(0, mainVol);
-    Serial.print("Main volume: ");
-    Serial.println(mainVol*10, 2);
+    //Serial.print("Main volume: ");
+    //Serial.println(mainVol*10, 2);
 }
 
 //Filter
@@ -120,8 +120,8 @@ void updateFilterMode(){
   filterMode1.gain(1, filterMode == 0 ? 1 : 0); // Lowpass
   filterMode1.gain(2, filterMode == 2 ? 1 : 0); // Highpass
   
-  Serial.print("Filter mode: ");
-  Serial.println(filterMode);
+  //Serial.print("Filter mode: ");
+  //Serial.println(filterMode);
 }
 
 void updateFilterParam(){
@@ -139,8 +139,8 @@ void updateFilterParam(){
         filter1.frequency(cutoff);
         filter1.resonance(reso);
         filter1.octaveControl(octave);
-        Serial.print('FFreq: ');
-        Serial.println(cutoff, 2);
+        //Serial.print('FFreq: ');
+        //Serial.println(cutoff, 2);
 
     }
     else{
@@ -152,7 +152,7 @@ void updateFilterParam(){
         filterEnv1.decay(filtDec);
         filterEnv1.release(filtRel);
         filterEnv1.sustain(filtSus);
-        Serial.print('FEnv: ');
+        //Serial.print('FEnv: ');
     }
 }
 
@@ -186,8 +186,8 @@ void WaveformUpdate(){
     lastShapeA = shapeA_btn;
     volA_pot = knobs[1].KnobValue;
     vcoA1.amplitude(volA_pot);
-    Serial.print("VCO A Wave: ");
-    Serial.println(shapeA_btn);
+    //Serial.print("VCO A Wave: ");
+    //Serial.println(shapeA_btn);
     
   }
   //VCOB
@@ -203,8 +203,8 @@ void WaveformUpdate(){
     lastShapeB = shapeB_btn;
     volB_pot = knobs[2].KnobValue;
     vcoB1.amplitude(volB_pot);
-    Serial.print("VCO B Wave: ");
-    Serial.println(shapeB_btn);
+    //Serial.print("VCO B Wave: ");
+    //Serial.println(shapeB_btn);
     
   }
   //VCOC  
@@ -220,8 +220,8 @@ void WaveformUpdate(){
     lastShapeC = shapeC_btn;
     volC_pot = knobs[1].KnobValue;
     vcoC1.amplitude(volA_pot);
-    Serial.print("VCO C Wave: ");
-    Serial.println(shapeC_btn);
+    //Serial.print("VCO C Wave: ");
+    //Serial.println(shapeC_btn);
     
   }
   //SUB
@@ -237,8 +237,8 @@ void WaveformUpdate(){
     lastShapeSub = shapeSub_btn;
     volSub_pot = knobs[4].KnobValue;
     sub1.amplitude(volSub_pot);
-    Serial.print("Sub Wave: ");
-    Serial.println(shapeSub_btn);
+    //Serial.print("Sub Wave: ");
+    //Serial.println(shapeSub_btn);
     
   }
 }
