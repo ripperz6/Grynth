@@ -82,6 +82,8 @@ extern int dlyTime_pot, oldDlyTime_pot;
 extern int revMix_pot, oldRevMix_pot;
 extern int revSize_pot, oldRevSize_pot;
 
+////////NOTE
+
 struct NoteButton {
   int pin;
   const char* name;
@@ -92,5 +94,17 @@ struct NoteButton {
 extern NoteButton noteButtons[6];
 void triggerNoteOn(float freq);
 void triggerNoteOff();
+//////MENU
+
+enum MenuState {
+  MENU_VOLUME,
+  MENU_FILTER,
+  MENU_OSC_MIX,
+  MENU_WAVEFORM,
+  MENU_COUNT
+};
+
+// Extern so all modules can use the same state
+extern MenuState currentMenu;
 
 #endif

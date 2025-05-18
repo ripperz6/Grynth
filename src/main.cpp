@@ -1,11 +1,15 @@
 // main.cpp
 #include <Arduino.h>
 #include "audcon.h"
-#include "global.h"
+#include "Global.h"
 #include "midih.h"
 #include <MIDI.h>
 #include "ui.h"
 #include "display.h"
+
+#define GRANULAR_MEMORY_SIZE 12800  // enough for 290 ms at 44.1 kHz
+int16_t granularMemory[GRANULAR_MEMORY_SIZE];
+
 
 void setup() {
   Serial.begin(9600);
@@ -24,15 +28,15 @@ void setup() {
   filterMode1.gain(1, 1);               //Band pass filter signal path
   filterMode1.gain(2, 0);               //High pass filter 0 = off 1 = on signal path
 
-  granular1.setSpeed(0);
-  granular1.beginFreeze(0);
-  granular1.beginPitchShift(5);
+  granular1.begin(granularMemory, GRANULAR_MEMORY_SIZE);
 
-  GranularMode1.gain(0,1);                              //Granular Off
-  GranularMode1.gain(0,0);                              //Granular On
+  GranularMode1.gain(0,0);                              //Granular Off
+  GranularMode1.gain(1,1);                              //Granular On
 
   lfoA1.begin(0.5, 2, WAVEFORM_SINE);                   //LFO A def shape
   lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);               //LFO B def gain freq shape
+
+
 
   env1.attack(10.5);
   env1.decay(35);
@@ -84,9 +88,18 @@ void loop() {
   WaveformUpdate();
   updateFilterMode();
   updateLFO();
-  //EnvelopeUpdate();
-  drawVolumeBar(mainVol);  // Assuming mainVol is 0.0–1.0
+  //EnvelopeUpdate()
+  drawMenuScreen();
 
+
+  
+ static unsigned long lastDisplay = 0;
+  if (millis() - lastDisplay > 100) {
+    drawMenuScreen();
+    lastDisplay = millis();
+  }
+
+  delay(1); 
 
   
   lfoA1.begin(0.01, 2, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
@@ -100,6 +113,10 @@ void loop() {
   modMix1.gain(1, 1);                   //LFO mod Mix Wave B
 
   dc1.amplitude(0.1);                   //DC control signal to filter
+
+   granular1.beginFreeze(100);
+  granular1.setSpeed(2);
+  granular1.beginPitchShift(29);
 
 
 

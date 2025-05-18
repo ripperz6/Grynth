@@ -1,4 +1,3 @@
-// display.cpp
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
 #include "Arduino.h"
@@ -10,6 +9,20 @@
 #define OLED_RESET     -1
 
 Adafruit_SH1106G display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire2, OLED_RESET);
+
+// Corrected type
+MenuState selectedMenu = MENU_VOLUME;
+
+const char* menuLabels[MENU_COUNT] = {
+  "Volume",
+  "Filter",
+  "Osc Mix",
+  "Waveform"
+};
+
+const unsigned char logo128x32[] = {
+  0x00, 0x00, 0x00, 0x00  // placeholder
+};
 
 unsigned long lastDisplayUpdate = 0;
 const unsigned long displayRefreshInterval = 100;  // in milliseconds
@@ -24,37 +37,41 @@ void setupOLED() {
   display.setTextSize(1);
   display.setTextColor(SH110X_WHITE);
   display.setCursor(0, 0);
-  display.print("SH1106 OK");
+  display.print("SH1106 Ready");
   display.display();
+  delay(1000);
 }
 
-void drawVolumeBar(float volume) {
+void drawMenuScreen() {
   if (millis() - lastDisplayUpdate < displayRefreshInterval) return;
   lastDisplayUpdate = millis();
 
   display.clearDisplay();
+
+  display.drawBitmap(100, 0, logo128x32, 28, 28, SH110X_WHITE);
+
   display.setTextSize(1);
   display.setTextColor(SH110X_WHITE);
-  display.setCursor(0, 0);
-  display.print("Volume:");
-  display.setCursor(60, 0);
-  display.print((int)(volume * 100));
-  display.print("%");
 
-  display.drawRect(0, 20, 120, 10, SH110X_WHITE);
-  int barLength = (int)(volume * 118);
-  display.fillRect(1, 21, barLength, 8, SH110X_WHITE);
+  for (int i = 0; i < MENU_COUNT; i++) {
+    int y = i * 10;
+    if (i == selectedMenu) {
+      display.fillRect(0, y, 100, 10, SH110X_WHITE);
+      display.setTextColor(SH110X_BLACK);
+    } else {
+      display.setTextColor(SH110X_WHITE);
+    }
+    display.setCursor(2, y);
+    display.print(menuLabels[i]);
+  }
 
   display.display();
 }
 
-void displayErrorMessage(const char* message) {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.setTextSize(1);
-  display.setTextColor(SH110X_WHITE);
-  display.print("ERROR:");
-  display.setCursor(0, 10);
-  display.print(message);
-  display.display();
+void nextMenu() {
+  selectedMenu = static_cast<MenuState>((selectedMenu + 1) % MENU_COUNT);
+}
+
+void prevMenu() {
+  selectedMenu = static_cast<MenuState>((selectedMenu - 1 + MENU_COUNT) % MENU_COUNT);
 }

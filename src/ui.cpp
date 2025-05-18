@@ -3,7 +3,7 @@
 #include "Bounce.h"
 #include "Global.h"
 #include "audcon.h"
-
+#include "midih.h"
 
 // Function to deactivate all knobs when mode changes
 void deactivateAllKnobs() {

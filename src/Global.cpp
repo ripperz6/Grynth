@@ -143,3 +143,7 @@ void triggerNoteOff() {
   lfoAenv1.noteOff();
   env1.noteOff();
 }
+
+MenuState currentMenu = MENU_VOLUME;
+
+
