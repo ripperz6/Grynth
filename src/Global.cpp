@@ -1,6 +1,6 @@
 // globals.cpp
-#include "global.h"
-
+#include "Global.h"
+#include "audcon.h"
 bool env1on = false;
 
 float vcoAgain = 0.4;
@@ -131,3 +131,15 @@ NoteButton noteButtons[] = {
   {32, "A", 440.00, Bounce(32, 15)}
 };
 
+void triggerNoteOn(float freq) {
+  vcoA1.frequency(freq);
+  vcoB1.frequency(freq);
+  vcoC1.frequency(freq);
+  lfoAenv1.noteOn();
+  env1.noteOn();
+}
+
+void triggerNoteOff() {
+  lfoAenv1.noteOff();
+  env1.noteOff();
+}

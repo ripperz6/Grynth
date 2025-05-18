@@ -7,5 +7,6 @@
 extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI;
 
 void setupMIDI();
-
+void handleNoteOn(byte channel, byte pitch, byte velocity) ;
+void handleNoteOff(byte channel, byte pitch, byte velocity) ;
 #endif

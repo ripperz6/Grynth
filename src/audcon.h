@@ -1,5 +1,5 @@
-#ifndef SYNTH_H
-#define SYNTH_H
+#ifndef AUDCON_H
+#define AUDCON_H
 
 #include <Audio.h>
 #include <Wire.h>
@@ -7,7 +7,6 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include <Bounce.h>
-#include <LiquidCrystal.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7735.h>
 

@@ -1,5 +1,5 @@
 #include "audcon.h"
-
+#include "global.h"
 // Define all Audio objects
 AudioSynthWaveform                  lfoA1;
 AudioEffectEnvelope                 lfoAenv1;

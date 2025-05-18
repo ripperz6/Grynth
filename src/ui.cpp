@@ -264,8 +264,8 @@ void updateLFO(){
 
     lfoA1.amplitude(lfoAamplitude);
     lfoA1.frequency(lfoAfrequency);
-    Serial.print("LFO Amp: "); Serial.println(lfoAamplitude);
-    Serial.print("LFO Freq: "); Serial.println(lfoAfrequency);
+    //Serial.print("LFO Amp: "); Serial.println(lfoAamplitude);
+    //Serial.print("LFO Freq: "); Serial.println(lfoAfrequency);
   } else {
     lfoAattack = params.lfo.lfoAatk;
     lfoAdecay = params.lfo.lfoAdec;

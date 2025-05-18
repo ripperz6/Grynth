@@ -5,12 +5,13 @@
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 void handleNoteOn(byte channel, byte pitch, byte velocity) {
-  float freq = 440.0 * pow(2.0, (pitch - 69) / 12.0);
-  vcoA1.frequency(freq);
-  vcoB1.frequency(freq);
-  vcoC1.frequency(freq);
-  lfoAenv1.noteOn();
-  env1.noteOn();
+  if (velocity == 0) {
+    handleNoteOff(channel, pitch, velocity);
+    return;
+  }
+
+  float freq = 440.0f * pow(2.0f, (pitch - 69) / 12.0f);
+  triggerNoteOn(freq);
 
   Serial.print("MIDI Note On: ");
   Serial.print(pitch);
@@ -19,8 +20,7 @@ void handleNoteOn(byte channel, byte pitch, byte velocity) {
 }
 
 void handleNoteOff(byte channel, byte pitch, byte velocity) {
-  lfoAenv1.noteOff();
-  env1.noteOff();
+  triggerNoteOff();
 
   Serial.print("MIDI Note Off: ");
   Serial.println(pitch);

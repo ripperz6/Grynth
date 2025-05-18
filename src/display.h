@@ -3,5 +3,4 @@
 
 void setupOLED();
 void drawVolumeBar(float volume);
-
 #endif

@@ -9,13 +9,11 @@
 
 void setup() {
   Serial.begin(9600);
-  setupOLED();
-
-
-  AudioMemory(1500);
+  AudioMemory(1600);
   setupMIDI();
   sgtl5000_1.enable();                                  //Audio Shield Ena
   sgtl5000_1.volume(0.8);                               //Audio Shield Vol
+  setupOLED();
   vcoA1.begin(vcoVol, 150, WAVEFORM_SAWTOOTH);          //Wave A def
   vcoB1.begin(vcoVol, 150, WAVEFORM_SQUARE);            //Wave B def
   vcoC1.begin(vcoVol * 1.5, 150, WAVEFORM_ARBITRARY);   //Wave C def
@@ -127,23 +125,19 @@ void loop() {
   fxR.gain(1, 0);                       //Reverb Mix R
   fxR.gain(2, 0);                       //Reverb Mix R
 
-for (int i = 0; i < 6; ++i) {           //Note Play
+for (int i = 0; i < 6; ++i) {
   noteButtons[i].button.update();
+
   if (noteButtons[i].button.fallingEdge()) {
     float freq = noteButtons[i].frequency;
-    vcoA1.frequency(freq);                        
-    vcoB1.frequency(freq);
-    vcoC1.frequency(freq);
-    lfoAenv1.noteOn();
-    env1.noteOn();
+    triggerNoteOn(freq);
 
     Serial.print("Note: ");
     Serial.println(noteButtons[i].name);
   }
 
   if (noteButtons[i].button.risingEdge()) {
-    lfoAenv1.noteOff();
-    env1.noteOff();
+    triggerNoteOff();
   }
 }
 

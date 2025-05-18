@@ -90,6 +90,7 @@ struct NoteButton {
 };
 
 extern NoteButton noteButtons[6];
-
+void triggerNoteOn(float freq);
+void triggerNoteOff();
 
 #endif
