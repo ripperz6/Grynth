@@ -91,5 +91,6 @@ extern AudioConnection patchCord41;
 extern AudioConnection patchCord42; //filtermode1 to gran
 extern AudioConnection patchCord43; //gran to granmode
 extern AudioConnection patchCord44; //granmode to env1
-extern AudioConnection patchCord45; //filtermoe 1 granmode
+extern AudioConnection patchCord45; //granmode to env1
+extern AudioConnection patchCordX;
 #endif

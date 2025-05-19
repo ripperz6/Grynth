@@ -4,7 +4,10 @@
 #include <Arduino.h>
 #include <Bounce.h>
 #include <Audio.h>
-
+#pragma once
+#define GRANULAR_MEMORY_SIZE 18000
+extern int16_t granularMemory[GRANULAR_MEMORY_SIZE];
+extern AudioEffectGranular granular1;
 // Envelope flags
 extern bool env1on;
 
@@ -96,15 +99,11 @@ void triggerNoteOn(float freq);
 void triggerNoteOff();
 //////MENU
 
-enum MenuState {
-  MENU_VOLUME,
-  MENU_FILTER,
-  MENU_OSC_MIX,
-  MENU_WAVEFORM,
-  MENU_COUNT
-};
 
-// Extern so all modules can use the same state
-extern MenuState currentMenu;
+// In Global.h
+
+
+
+
 
 #endif

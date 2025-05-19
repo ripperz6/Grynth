@@ -1,6 +1,7 @@
 // globals.cpp
 #include "Global.h"
 #include "audcon.h"
+
 bool env1on = false;
 
 float vcoAgain = 0.4;
@@ -122,6 +123,11 @@ int oldRevMix_pot;
 int revSize_pot;
 int oldRevSize_pot;
 
+//Granular 
+int16_t granularMemory[GRANULAR_MEMORY_SIZE];
+
+
+
 NoteButton noteButtons[] = {
   {27, "C", 261.63, Bounce(27, 15)},
   {28, "D", 293.66, Bounce(28, 15)},
@@ -137,13 +143,25 @@ void triggerNoteOn(float freq) {
   vcoC1.frequency(freq);
   lfoAenv1.noteOn();
   env1.noteOn();
+
+  granular1.begin(granularMemory, GRANULAR_MEMORY_SIZE);
+  // Freeze a grain once
+  int grain_size = random(10000, GRANULAR_MEMORY_SIZE);
+  granular1.beginFreeze(grain_size);
+  
+  // Optional: Add pitch shift or speed
+  float grain_speed = random(15, 200) / 100.0f;
+  granular1.setSpeed(1.334839854);
+  GranularMode1.gain(0, 0.5);  // granular on
 }
+
 
 void triggerNoteOff() {
   lfoAenv1.noteOff();
   env1.noteOff();
+  granular1.stop();
 }
 
-MenuState currentMenu = MENU_VOLUME;
+
 
 

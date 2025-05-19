@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 
+
 // Struct to hold knob state
 struct Knob {
   uint8_t pin;
@@ -12,8 +13,9 @@ struct Knob {
 };
 
 // Struct to store all mode-specific parameters to ensure values are preserved
-typedef struct {
+
   // Volume mode parameters
+struct SynthParameters {
   struct {
     float mainVol;
     float vcoAgain;
@@ -22,7 +24,6 @@ typedef struct {
     float SubVol;
   } volume;
 
-  // Filter mode parameters
   struct {
     float cutoff;
     float reso;
@@ -35,44 +36,6 @@ typedef struct {
     bool filterEdit;
   } filter;
 
-  // Waveform mode parameters
-  struct {
-    int shapeA_btn;
-    int shapeB_btn;
-    int shapeC_btn;
-    int shapeSub_btn;
-    float volSub_pot;
-  } waveform;
-
-  // LFO mode parameters
-  struct {
-    float lfoAamp;
-    float lfoAfreq;
-    float lfoAatk;
-    float lfoAdec;
-    float lfoArel;
-    float lfoAsus;
-    int lfoAshape;
-    bool lfoAEdit;
-
-    float lfoBamp;
-    float lfoBfreq;
-  } lfo;
-
-  // Effects mode parameters
-  struct {
-    float size;
-    float damping;
-    float reverbMix;
-  } reverb;
-
-   // Effects mode parameters
-  struct {
-    float dlyTime;
-    float dlyMix;
-  } dly;
-
-  // Sampling mode parameters
   struct {
     float envAtk;
     float envDec;
@@ -80,15 +43,38 @@ typedef struct {
     float envSus;
   } env;
 
-    struct {
-    float param1;
-    float param2;
-    float param3;
-    float param4;
-    float param5;
-  } sampling;
-} SynthParameters;
+  struct {
+    int shapeA_btn;
+    int shapeB_btn;
+    int shapeC_btn;
+  } waveform;
 
+  struct {
+    float lfoAatk;
+    float lfoAdec;
+    float lfoArel;
+    float lfoAsus;
+    float lfoAfreq;
+    float lfoAamp;
+    bool lfoAEdit;
+  } lfo;
+
+  struct {
+    float dlyMix;
+    float dlyTime;
+  } dly;
+
+  struct {
+    float size;
+    float damping;
+    float reverbMix;
+  } reverb;
+
+  struct {
+    float param1;
+  } sampling;
+};
+extern SynthParameters params;
 // Declare the knobs
 extern Knob knobs[5];
 // Setup knob pins
@@ -110,4 +96,18 @@ void updateEnvelopeParams();
 void EnvelopeUpdate();
 void updateButtons();
 void updateEffectsParams();
+
+enum ControlMode {
+  VOLUME_MODE,
+  FILTER_MODE,
+  WAVEFORM_MODE,
+  LFO_MODE,
+  ENVELOPE_MODE,
+  EFFECTS_MODE,
+  SAMPLING_MODE
+};
+
+extern ControlMode currentMode;
+
 #endif
+

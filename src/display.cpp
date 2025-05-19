@@ -3,6 +3,8 @@
 #include "Arduino.h"
 #include "global.h"
 #include "display.h"
+#include "Global.h"
+#include "ui.h"
 
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
@@ -20,9 +22,7 @@ const char* menuLabels[MENU_COUNT] = {
   "Waveform"
 };
 
-const unsigned char logo128x32[] = {
-  0x00, 0x00, 0x00, 0x00  // placeholder
-};
+
 
 unsigned long lastDisplayUpdate = 0;
 const unsigned long displayRefreshInterval = 100;  // in milliseconds
@@ -47,26 +47,103 @@ void drawMenuScreen() {
   lastDisplayUpdate = millis();
 
   display.clearDisplay();
-
-  display.drawBitmap(100, 0, logo128x32, 28, 28, SH110X_WHITE);
-
   display.setTextSize(1);
   display.setTextColor(SH110X_WHITE);
 
-  for (int i = 0; i < MENU_COUNT; i++) {
-    int y = i * 10;
-    if (i == selectedMenu) {
-      display.fillRect(0, y, 100, 10, SH110X_WHITE);
-      display.setTextColor(SH110X_BLACK);
-    } else {
-      display.setTextColor(SH110X_WHITE);
+  switch (currentMode) {
+    case VOLUME_MODE: {
+      int barLength = (int)(params.volume.mainVol * 118);
+      display.setCursor(0, 0);
+      display.print("Volume: ");
+      display.print(params.volume.mainVol, 2);
+      display.fillRect(0, 10, barLength, 10, SH110X_WHITE);
+      break;
     }
-    display.setCursor(2, y);
-    display.print(menuLabels[i]);
+    case FILTER_MODE: {
+      display.setCursor(0, 0);
+      if (!params.filter.filterEdit) {
+        display.print("Cutoff: ");
+        display.println(params.filter.cutoff, 0);
+        display.print("Reso: ");
+        display.println(params.filter.reso, 2);
+        display.print("Oct: ");
+        display.println(params.filter.octave, 1);
+      } else {
+        display.print("Env A: ");
+        display.println(params.filter.filtAtt, 0);
+        display.print("Env D: ");
+        display.println(params.filter.filtDec, 0);
+        display.print("Env S: ");
+        display.println(params.filter.filtSus, 2);
+        display.print("Env R: ");
+        display.println(params.filter.filtRel, 0);
+      }
+      break;
+    }
+    case WAVEFORM_MODE: {
+      display.setCursor(0, 0);
+      display.print("Shape A: ");
+      display.println(params.waveform.shapeA_btn);
+      display.print("Shape B: ");
+      display.println(params.waveform.shapeB_btn);
+      display.print("Shape C: ");
+      display.println(params.waveform.shapeC_btn);
+      break;
+    }
+    case LFO_MODE: {
+      display.setCursor(0, 0);
+      if (params.lfo.lfoAEdit) {
+        display.print("LFO A: Attack ");
+        display.println(params.lfo.lfoAatk, 0);
+        display.print("Decay ");
+        display.println(params.lfo.lfoAdec, 0);
+        display.print("Sustain ");
+        display.println(params.lfo.lfoAsus, 2);
+        display.print("Release ");
+        display.println(params.lfo.lfoArel, 0);
+      } else {
+        display.print("Freq: ");
+        display.println(params.lfo.lfoAfreq, 2);
+        display.print("Amp: ");
+        display.println(params.lfo.lfoAamp, 2);
+      }
+      break;
+    }
+    case ENVELOPE_MODE: {
+      display.setCursor(0, 0);
+      display.print("Env A: ");
+      display.println(params.env.envAtk, 0);
+      display.print("Env D: ");
+      display.println(params.env.envDec, 0);
+      display.print("Env S: ");
+      display.println(params.env.envSus, 2);
+      display.print("Env R: ");
+      display.println(params.env.envRel, 0);
+      break;
+    }
+    case EFFECTS_MODE: {
+      display.setCursor(0, 0);
+      display.print("Dly Amt: ");
+      display.println(params.dly.dlyMix, 2);
+      display.print("Dly Time: ");
+      display.println(params.dly.dlyTime, 0);
+      display.print("Rev Size: ");
+      display.println(params.reverb.size, 2);
+      display.print("Damp: ");
+      display.println(params.reverb.damping, 2);
+      break;
+    }
+    case SAMPLING_MODE: {
+      display.setCursor(0, 0);
+      display.print("Mic Level: ");
+      display.println(params.sampling.param1, 2);
+      break;
+    }
   }
 
   display.display();
 }
+
 
 void nextMenu() {
   selectedMenu = static_cast<MenuState>((selectedMenu + 1) % MENU_COUNT);

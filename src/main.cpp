@@ -7,16 +7,15 @@
 #include "ui.h"
 #include "display.h"
 
-#define GRANULAR_MEMORY_SIZE 12800  // enough for 290 ms at 44.1 kHz
-int16_t granularMemory[GRANULAR_MEMORY_SIZE];
 
 
 void setup() {
   Serial.begin(9600);
-  AudioMemory(1600);
+  AudioMemory(900);
   setupMIDI();
   sgtl5000_1.enable();                                  //Audio Shield Ena
   sgtl5000_1.volume(0.8);                               //Audio Shield Vol
+
   setupOLED();
   vcoA1.begin(vcoVol, 150, WAVEFORM_SAWTOOTH);          //Wave A def
   vcoB1.begin(vcoVol, 150, WAVEFORM_SQUARE);            //Wave B def
@@ -30,8 +29,9 @@ void setup() {
 
   granular1.begin(granularMemory, GRANULAR_MEMORY_SIZE);
 
-  GranularMode1.gain(0,0);                              //Granular Off
-  GranularMode1.gain(1,1);                              //Granular On
+  GranularMode1.gain(0, 0.6); // dry
+  GranularMode1.gain(1, 0); // granular muted                       //Granular Off
+                          
 
   lfoA1.begin(0.5, 2, WAVEFORM_SINE);                   //LFO A def shape
   lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);               //LFO B def gain freq shape
@@ -43,16 +43,16 @@ void setup() {
   env1.sustain(0.3);
   env1.release(50);
 
-  mix1.gain(0,1);
+  mix1.gain(0,0.8);
   finalMix.gain(0,1);
 
   dlyFiltL.frequency(4000);
   dlyFiltR.frequency(3000);
 
-  dlyMixL.gain(0, 1);                                   //Dry Voice Mix
-  dlyMixL.gain(1, 0);                                   //Delay Feedback Mix
-  dlyMixR.gain(0, 1);                                   
-  dlyMixR.gain(1, 0);                                   
+  dlyMixL.gain(0, 0.8);                                   //Dry Voice Mix
+  dlyMixL.gain(1, 0.5);                                   //Delay Feedback Mix
+  dlyMixR.gain(0, 0.8);                                   
+  dlyMixR.gain(1, 0.5);                                   
 
   for (int i = 1; i < 8; ++i) {                         //Disable Delay
     dlyL.disable(i);
@@ -90,7 +90,7 @@ void loop() {
   updateLFO();
   //EnvelopeUpdate()
   drawMenuScreen();
-
+  
 
   
  static unsigned long lastDisplay = 0;
@@ -109,37 +109,35 @@ void loop() {
   patchCord4.connect();                              //LFOA Pitch connect Wave C
   
 
-  modMix1.gain(0, 1);                   //vcoB mod Mix
-  modMix1.gain(1, 1);                   //LFO mod Mix Wave B
+  modMix1.gain(0, 0.5);                   //vcoB mod Mix
+  modMix1.gain(1, 0.5);                   //LFO mod Mix Wave B
 
-  dc1.amplitude(0.1);                   //DC control signal to filter
+  dc1.amplitude(1);                   //DC control signal to filter
 
-   granular1.beginFreeze(100);
-  granular1.setSpeed(2);
-  granular1.beginPitchShift(29);
+
 
 
 
   filterMix1.gain(0, 0);                //LFO merge with Filter Envelope
   filterMix1.gain(1, 0);              //Filter Envelope Control
 
-  mix1.gain(0, 1);                      //Allow note 0 to pass to Final Mix
+  mix1.gain(0, 0.8);                      //Allow note 0 to pass to Final Mix
 
-  reverb.roomsize(0.3);                 //Reverb Size
-  reverb.damping(0);                  //Reverb Damp
+  reverb.roomsize(0.6);                 //Reverb Size
+  reverb.damping(0.4);                  //Reverb Damp
 
-  dlyMixL.gain(0, 1);                   //Dry Sound of Delay L
-  dlyMixL.gain(1, 1);                   //Delay Feedback
+  dlyMixL.gain(0, 0.5);                   //Dry Sound of Delay L
+  dlyMixL.gain(1, 0.5);                   //Delay Feedback
 
-  dlyMixR.gain(0, 1);                   //Dry Sound of Delay R
-  dlyMixR.gain(1, 1);                   //Delay Feedback
+  dlyMixR.gain(0, 0.5);                   //Dry Sound of Delay R
+  dlyMixR.gain(1, 0.5);                   //Delay Feedback
 
-  fxL.gain(0, 1);                       //Dry Sound L
-  fxL.gain(1, 0);                       //Reverb Mix L
+  fxL.gain(0, 0.7);                       //Dry Sound L
+  fxL.gain(1, 0.2);                       //Reverb Mix L
   fxL.gain(2, 0);                       //Reveb Mix L
 
-  fxR.gain(0, 1);                       //Dry Sound R
-  fxR.gain(1, 0);                       //Reverb Mix R
+  fxR.gain(0, 0.7);                       //Dry Sound R
+  fxR.gain(1, 0.2);                       //Reverb Mix R
   fxR.gain(2, 0);                       //Reverb Mix R
 
 for (int i = 0; i < 6; ++i) {
@@ -155,7 +153,10 @@ for (int i = 0; i < 6; ++i) {
 
   if (noteButtons[i].button.risingEdge()) {
     triggerNoteOff();
-  }
+    
 }
 
+}
+//Serial.print("AudioMemory Usage: ");
+//Serial.println(AudioMemoryUsageMax());
 }

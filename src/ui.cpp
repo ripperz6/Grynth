@@ -4,6 +4,10 @@
 #include "Global.h"
 #include "audcon.h"
 #include "midih.h"
+#include "ui.h"
+
+// Define the global variable declared in ui.h
+ControlMode currentMode = VOLUME_MODE;
 
 // Function to deactivate all knobs when mode changes
 void deactivateAllKnobs() {
@@ -32,17 +36,8 @@ Bounce button0 = Bounce(1, 15);
 Bounce button1 = Bounce(2, 15);
 Bounce button2 = Bounce(9, 15);
 
-enum ControlMode {
-  VOLUME_MODE,
-  FILTER_MODE,
-  WAVEFORM_MODE,
-  LFO_MODE,
-  ENVELOPE_MODE,
-  EFFECTS_MODE,
-  SAMPLING_MODE
-};
 
-ControlMode currentMode = VOLUME_MODE;
+
 int button0_count = 0;
 
 void setupUI() {
@@ -130,7 +125,10 @@ void updateKnobs() {
       }
     }
   }
+// Initialize currentMode
 
+// Initialize params
+SynthParameters params;
   // Only update parameters if a knob actually changed
   if (knobChanged) {
     // We only update based on the specific knob that changed
@@ -289,18 +287,25 @@ void updateEnvelopeParams(){
 
 void updateEffectsParams() {
   if (knobs[0].active) params.dly.dlyMix = knobs[0].KnobValue;
-  if (knobs[1].active) params.dly.dlyTime = knobs[1].KnobValue;
+  if (knobs[1].active) params.dly.dlyTime = knobs[1].KnobValue*10000;
   if (knobs[2].active) params.reverb.size = knobs[2].KnobValue;
   if (knobs[3].active) params.reverb.damping = knobs[3].KnobValue;
   if (knobs[4].active) params.reverb.reverbMix = knobs[4].KnobValue;
+
+  dlyL.delay(0,params.dly.dlyTime);
+  dlyR.delay(0,params.dly.dlyTime);
+  reverb.roomsize(params.reverb.size);                                 //Reverb Size Def
+  reverb.damping(params.reverb.damping);                                  //Reveb Damp Def
+  reverb.damping(params.reverb.reverbMix);
+
+  fxL.gain(1, params.reverb.reverbMix);                       //Reverb Mix L
+  fxR.gain(1, params.reverb.reverbMix);                       //Reverb Mix R
+  fxL.gain(2, params.dly.dlyMix);                       //Reverb Mix L
+  fxR.gain(2, params.dly.dlyMix);                       //Reverb Mix R
 }
 
 void updateSamplingParams() {
-  if (knobs[0].active) params.sampling.param1 = knobs[0].KnobValue;
-  if (knobs[1].active) params.sampling.param2 = knobs[1].KnobValue;
-  if (knobs[2].active) params.sampling.param3 = knobs[2].KnobValue;
-  if (knobs[3].active) params.sampling.param4 = knobs[3].KnobValue;
-  if (knobs[4].active) params.sampling.param5 = knobs[4].KnobValue;
+  if (knobs[1].active) params.sampling.param1 = knobs[1].KnobValue;   //Mic Gain
   
   // TODO: Implement actual sampling parameter update
   //Serial.println("Sampling parameters updated");
@@ -308,7 +313,7 @@ void updateSamplingParams() {
 
 // Existing functions now use stored parameters rather than direct knob values
 void updateMainVolume() {
-  mainVol = params.volume.mainVol;
+  mainVol = params.volume.mainVol*0.8;
   vcoAgain = params.volume.vcoAgain;
   vcoBgain = params.volume.vcoBgain;
   vcoCgain = params.volume.vcoCgain;
