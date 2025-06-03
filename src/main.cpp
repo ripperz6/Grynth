@@ -78,6 +78,7 @@ void setup() {
   pinMode(1,INPUT_PULLUP);
   pinMode(2,INPUT_PULLUP);
   pinMode(9,INPUT_PULLUP);
+  
 }
 
 void loop() {
@@ -153,7 +154,8 @@ for (int i = 0; i < 6; ++i) {
 
   if (noteButtons[i].button.risingEdge()) {
     triggerNoteOff();
-    
+
+ 
 }
 
 }

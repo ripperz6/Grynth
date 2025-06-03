@@ -12,6 +12,9 @@
 
 Adafruit_SH1106G display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire2, OLED_RESET);
 
+// Sine wave icon
+
+
 // Corrected type
 MenuState selectedMenu = MENU_VOLUME;
 
@@ -42,6 +45,21 @@ void setupOLED() {
   delay(1000);
 }
 
+void drawWaveformIcon(uint8_t shape, int x, int y) {
+   const unsigned char* icon = nullptr;
+
+  switch (shape) {
+    case 0: icon = sineIcon; break;
+    case 1: icon = sawIcon; break;
+    case 2: icon = triangleIcon; break;
+    case 3: icon = squareIcon; break;
+    default: return;
+  }
+  display.drawBitmap(x, y , icon, 32, 32, SH110X_WHITE);
+}
+
+
+
 void drawMenuScreen() {
   if (millis() - lastDisplayUpdate < displayRefreshInterval) return;
   lastDisplayUpdate = millis();
@@ -55,12 +73,13 @@ void drawMenuScreen() {
       int barLength = (int)(params.volume.mainVol * 118);
       display.setCursor(0, 0);
       display.print("Volume: ");
-      display.print(params.volume.mainVol, 2);
+      display.print(params.volume.mainVol*100, 0);
       display.fillRect(0, 10, barLength, 10, SH110X_WHITE);
       break;
     }
     case FILTER_MODE: {
       display.setCursor(0, 0);
+      display.print("Filter ");
       if (!params.filter.filterEdit) {
         display.print("Cutoff: ");
         display.println(params.filter.cutoff, 0);
@@ -82,14 +101,24 @@ void drawMenuScreen() {
     }
     case WAVEFORM_MODE: {
       display.setCursor(0, 0);
-      display.print("Shape A: ");
-      display.println(params.waveform.shapeA_btn);
-      display.print("Shape B: ");
-      display.println(params.waveform.shapeB_btn);
-      display.print("Shape C: ");
-      display.println(params.waveform.shapeC_btn);
+      display.print("Waveform");
+
+      // Draw each waveform icon with label
+      drawWaveformIcon(params.waveform.shapeA_btn, 0, 10);
+      drawWaveformIcon(params.waveform.shapeB_btn, 48, 10);
+      drawWaveformIcon(params.waveform.shapeC_btn, 96, 10);
+
+      display.setCursor(8, 44);
+      display.print("A");
+
+      display.setCursor(56, 44);
+      display.print("B");
+
+      display.setCursor(104, 44);
+      display.print("C");
       break;
-    }
+      }
+
     case LFO_MODE: {
       display.setCursor(0, 0);
       if (params.lfo.lfoAEdit) {

@@ -14,7 +14,7 @@ void deactivateAllKnobs() {
   for (int i = 0; i < 5; i++) {
     knobs[i].active = false;
     // Read current physical position but don't apply
-    analogReadAveraging(200);
+    analogReadAveraging(256);
     knobs[i].lastKnobValue = analogRead(knobs[i].pin) / 1023.0f;
   }
 }
@@ -44,7 +44,7 @@ void setupUI() {
   // Initialize pins
   for (int i = 0; i < 5; i++) {
     pinMode(knobs[i].pin, INPUT);
-    analogReadAveraging(200);
+    analogReadAveraging(256);
     knobs[i].KnobValue = analogRead(knobs[i].pin) / 1023.0f;
     knobs[i].lastKnobValue = knobs[i].KnobValue;
     knobs[i].active = true;  // Knobs are active during initial setup
