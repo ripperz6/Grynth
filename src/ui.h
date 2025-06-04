@@ -1,8 +1,9 @@
 #ifndef UI_H
 #define UI_H
-
+#pragma once
+#include <Bounce.h>
 #include <Arduino.h>
-
+#include "global.h"
 
 // Struct to hold knob state
 struct Knob {
@@ -11,6 +12,10 @@ struct Knob {
   float lastKnobValue;
   bool active;
 };
+
+extern Bounce button0;
+extern Bounce button1;
+extern Bounce button2;
 
 // Struct to store all mode-specific parameters to ensure values are preserved
 
@@ -73,6 +78,14 @@ struct SynthParameters {
   struct {
     float param1;
   } sampling;
+
+  struct {
+    float freeze_time;
+    float pitch_shift;
+    float ratio;
+    bool freeze_start;
+    bool pitch_shift_on;
+  } granular;
 };
 extern SynthParameters params;
 // Declare the knobs
@@ -96,7 +109,8 @@ void updateEnvelopeParams();
 void EnvelopeUpdate();
 void updateButtons();
 void updateEffectsParams();
-
+void GranularParamUpdate();
+void GranularUpdate();
 enum ControlMode {
   VOLUME_MODE,
   FILTER_MODE,
@@ -104,7 +118,8 @@ enum ControlMode {
   LFO_MODE,
   ENVELOPE_MODE,
   EFFECTS_MODE,
-  SAMPLING_MODE
+  SAMPLING_MODE,
+  GRAN_MODE
 };
 
 extern ControlMode currentMode;

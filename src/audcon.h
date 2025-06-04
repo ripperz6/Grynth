@@ -46,6 +46,17 @@ extern AudioControlSGTL5000 sgtl5000_1;
 extern AudioEffectGranular granular1;
 extern AudioMixer4 GranularMode1;
 
+extern AudioEffectGranular                 granularL;
+extern AudioEffectGranular                 granularLR;
+extern AudioEffectGranular                 granularR;
+extern AudioMixer4                         GranMixL;
+extern AudioMixer4                         GranMixR;
+
+extern AudioRecordQueue                    queue1;
+extern AudioRecordQueue                    queue2;
+extern AudioPlaySdWav           playSdWav1;  
+
+extern AudioMixer4                         MixerGran;
 extern AudioConnection patchCord1;
 extern AudioConnection patchCord2;
 extern AudioConnection patchCord3;
@@ -93,4 +104,15 @@ extern AudioConnection patchCord43; //gran to granmode
 extern AudioConnection patchCord44; //granmode to env1
 extern AudioConnection patchCord45; //granmode to env1
 extern AudioConnection patchCordX;
+
+extern AudioConnection patchCord40;
+extern AudioConnection patchCord41;
+extern AudioConnection patchCord46;
+extern AudioConnection patchCord47;
+extern AudioConnection patchCord48;
+extern AudioConnection patchCord49;
+extern AudioConnection patchCord54;
+extern AudioConnection patchCord55;
+extern AudioConnection patchCord56;
+
 #endif

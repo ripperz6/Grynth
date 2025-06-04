@@ -7,6 +7,9 @@
 #include "ui.h"
 #include "display.h"
 
+#define SDCARD_CS_PIN    10
+#define SDCARD_MOSI_PIN  11 
+#define SDCARD_SCK_PIN   13 
 
 
 void setup() {
@@ -14,9 +17,21 @@ void setup() {
   AudioMemory(900);
   setupMIDI();
   sgtl5000_1.enable();                                  //Audio Shield Ena
-  sgtl5000_1.volume(0.8);                               //Audio Shield Vol
-
+  sgtl5000_1.volume(0.8);     //Audio Shield Vol
+  queue1.begin();
+  
   setupOLED();
+
+  SPI.setMOSI(SDCARD_MOSI_PIN);
+  SPI.setSCK(SDCARD_SCK_PIN);
+  if (!(SD.begin(SDCARD_CS_PIN))) {
+    // stop here, but print a message repetitively
+    while (1) {
+      Serial.println("Unable to access the SD card");
+      delay(500);
+    }
+  }
+
   vcoA1.begin(vcoVol, 150, WAVEFORM_SAWTOOTH);          //Wave A def
   vcoB1.begin(vcoVol, 150, WAVEFORM_SQUARE);            //Wave B def
   vcoC1.begin(vcoVol * 1.5, 150, WAVEFORM_ARBITRARY);   //Wave C def
@@ -27,11 +42,13 @@ void setup() {
   filterMode1.gain(1, 1);               //Band pass filter signal path
   filterMode1.gain(2, 0);               //High pass filter 0 = off 1 = on signal path
 
-  granular1.begin(granularMemory, GRANULAR_MEMORY_SIZE);
+  MixerGran.gain(0, 1);
+  MixerGran.gain(1, 1);
 
-  GranularMode1.gain(0, 0.6); // dry
-  GranularMode1.gain(1, 0); // granular muted                       //Granular Off
+  GranularMode1.gain(0, 1); // dry
+  GranularMode1.gain(1, 0.5); // Gran
                           
+  granular1.begin(granularMemory, GRANULAR_MEMORY_SIZE);
 
   lfoA1.begin(0.5, 2, WAVEFORM_SINE);                   //LFO A def shape
   lfoB1.begin(0.5, 1, WAVEFORM_TRIANGLE);               //LFO B def gain freq shape
@@ -91,9 +108,29 @@ void loop() {
   updateLFO();
   //EnvelopeUpdate()
   drawMenuScreen();
-  
+  GranularUpdate();
+   if (queue2.available() > 0) {
+    // 1a) Read raw 16-bit PCM samples (128 samples per buffer by default):
+    int16_t *rawPCM = queue2.readBuffer();
+i
+    // 1b) Example: copy into your sampleBank (or directly into granularMemory):
+    //     – assume sampleBank[] is sized to hold at least GRANULAR_MEMORY_SIZE samples
+    //     – and you want to append or process only the first 128 samples right now:
+    memcpy(sampleBank, rawPCM, 128 * sizeof(int16_t));
 
-  
+    // 1c) Free the buffer so the AudioRecordQueue can reuse it:
+    queue2.freeBuffer();
+
+    // 1d) Now you can pass “sampleBank” to your granular processor:
+    //     e.g. if you only needed to “beginFreeze” once you have enough samples:
+    if (!granularSampleLoaded) {
+        // (However you load a full sample—this is just a toy example:)
+        for (int i = 0; i < 128; i++) {
+            granularMemory[i] = sampleBank[i];
+        }
+        granularSampleLoaded = true;
+    }
+
  static unsigned long lastDisplay = 0;
   if (millis() - lastDisplay > 100) {
     drawMenuScreen();
@@ -103,21 +140,17 @@ void loop() {
   delay(1); 
 
   
-  lfoA1.begin(0.01, 2, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
-  lfoB1.begin(0.1, 2, WAVEFORM_SINE);   //LFOB Amplitude, Freq, Shape
-  patchCord2.connect();                              //LFOA Pitch connect Wave A
-  patchCord3.connect();                              //LFOA Pitch connect Wave B                           
-  patchCord4.connect();                              //LFOA Pitch connect Wave C
+  //lfoA1.begin(0.01, 2, WAVEFORM_SINE);     //LFOA Amplitude, Freq, Shape
+  //lfoB1.begin(0.1, 2, WAVEFORM_SINE);   //LFOB Amplitude, Freq, Shape
+  //patchCord2.connect();                              //LFOA Pitch connect Wave A
+ //patchCord3.connect();                              //LFOA Pitch connect Wave B                           
+ // patchCord4.connect();                              //LFOA Pitch connect Wave C
   
 
   modMix1.gain(0, 0.5);                   //vcoB mod Mix
   modMix1.gain(1, 0.5);                   //LFO mod Mix Wave B
 
   dc1.amplitude(1);                   //DC control signal to filter
-
-
-
-
 
   filterMix1.gain(0, 0);                //LFO merge with Filter Envelope
   filterMix1.gain(1, 0);              //Filter Envelope Control
@@ -141,6 +174,27 @@ void loop() {
   fxR.gain(1, 0.2);                       //Reverb Mix R
   fxR.gain(2, 0);                       //Reverb Mix R
 
+ 
+ if (currentMode == GRAN_MODE) {
+   if (playSdWav1.isPlaying() == false) {
+    
+    delay(5); // brief delay for the library read WAV info
+   }
+  if (button1.fallingEdge()) {
+    granular1.beginFreeze(FreezeT);
+  } else if (button1.risingEdge()) {
+    granular1.stop();
+  }
+
+  if (button2.fallingEdge()) {
+    granular1.beginPitchShift(PitchShift);
+  } else if (button2.risingEdge()) {
+    granular1.stop();
+  }
+}
+  else if (currentMode != GRAN_MODE)
+   playSdWav1.stop();
+
 for (int i = 0; i < 6; ++i) {
   noteButtons[i].button.update();
 
@@ -161,4 +215,5 @@ for (int i = 0; i < 6; ++i) {
 }
 //Serial.print("AudioMemory Usage: ");
 //Serial.println(AudioMemoryUsageMax());
+}
 }

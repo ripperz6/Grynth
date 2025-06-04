@@ -1,7 +1,6 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SH110X.h>
 #include "Arduino.h"
-#include "global.h"
 #include "display.h"
 #include "Global.h"
 #include "ui.h"
@@ -122,6 +121,11 @@ void drawMenuScreen() {
     case LFO_MODE: {
       display.setCursor(0, 0);
       if (params.lfo.lfoAEdit) {
+        display.print("Freq: ");
+        display.println(params.lfo.lfoAfreq, 2);
+        display.print("Amp: ");
+        display.println(params.lfo.lfoAamp, 2);
+      } else {
         display.print("LFO A: Attack ");
         display.println(params.lfo.lfoAatk, 0);
         display.print("Decay ");
@@ -130,11 +134,6 @@ void drawMenuScreen() {
         display.println(params.lfo.lfoAsus, 2);
         display.print("Release ");
         display.println(params.lfo.lfoArel, 0);
-      } else {
-        display.print("Freq: ");
-        display.println(params.lfo.lfoAfreq, 2);
-        display.print("Amp: ");
-        display.println(params.lfo.lfoAamp, 2);
       }
       break;
     }
@@ -166,6 +165,16 @@ void drawMenuScreen() {
       display.setCursor(0, 0);
       display.print("Mic Level: ");
       display.println(params.sampling.param1, 2);
+      break;
+    }
+    case GRAN_MODE: {
+      display.setCursor(0, 0);
+      display.print("Freeze Time: ");
+      display.println(params.granular.freeze_time, 2);
+      display.print("Pitch Shift: ");
+      display.println(params.granular.pitch_shift, 2);
+      display.print("Speed Ratio: ");
+      display.println(params.granular.ratio, 2);
       break;
     }
   }

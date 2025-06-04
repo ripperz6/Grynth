@@ -44,7 +44,7 @@ void setupUI() {
   // Initialize pins
   for (int i = 0; i < 5; i++) {
     pinMode(knobs[i].pin, INPUT);
-    analogReadAveraging(256);
+    analogReadAveraging(200);
     knobs[i].KnobValue = analogRead(knobs[i].pin) / 1023.0f;
     knobs[i].lastKnobValue = knobs[i].KnobValue;
     knobs[i].active = true;  // Knobs are active during initial setup
@@ -159,6 +159,10 @@ SynthParameters params;
       case SAMPLING_MODE:
        // updateSamplingParams();
         break;
+      case GRAN_MODE:
+        GranularParamUpdate();
+        GranularUpdate();
+        break;
     }
   }
 }
@@ -169,7 +173,7 @@ void updateButtons() {
   button2.update();
 
   if (button0.fallingEdge()) {
-    button0_count = (button0_count + 1) % 7;
+    button0_count = (button0_count + 1) % 8;
     currentMode = static_cast<ControlMode>(button0_count);
     
     // Deactivate all knobs when mode changes
@@ -184,6 +188,7 @@ void updateButtons() {
       case ENVELOPE_MODE: Serial.println("ENV"); break;
       case EFFECTS_MODE: Serial.println("Effects"); break;
       case SAMPLING_MODE: Serial.println("Sampling"); break;
+      case GRAN_MODE: Serial.println("Granular"); break;
       default: 
         //Serial.println("Unknown");
         currentMode = VOLUME_MODE;
@@ -208,6 +213,8 @@ void updateButtons() {
   if (button1.fallingEdge() && currentMode == LFO_MODE) {
     params.lfo.lfoAEdit = !params.lfo.lfoAEdit;
   }
+
+ 
   
 }
 //update parameters based on knob values
@@ -429,3 +436,18 @@ void WaveformUpdate() {
     env1.sustain(envSus);
     env1.release(envRel);
   }
+
+  void GranularParamUpdate(){
+    if (knobs[1].active) params.granular.freeze_time = 100 + (knobs[1].KnobValue*190.0);
+    if (knobs[2].active) params.granular.pitch_shift = 25 + (knobs[2].KnobValue*75.0);  
+    if (knobs[3].active) params.granular.ratio = (knobs[3].KnobValue* 2.0 - 1.0);
+  }
+  void GranularUpdate(){
+    FreezeT = params.granular.freeze_time;
+    PitchShift = params.granular.pitch_shift;
+    Ratio = powf(2,params.granular.ratio);
+
+    
+ }
+
+  
